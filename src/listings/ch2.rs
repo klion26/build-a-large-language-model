@@ -60,6 +60,7 @@ impl SimpleTokenizerV2 {
         // add special tokens to vocab if needed
         let vocab_size = vocab.len();
         let unknow = "<|unk|>";
+        let eof = "<|endoftext|>";
         let insert_unknow = !vocab.contains_key(unknow);
         Self {
             str2int: {
@@ -68,6 +69,9 @@ impl SimpleTokenizerV2 {
                 if insert_unknow {
                     key2id.insert(unknow.to_string(), vocab_size as i32 + 1);
                 }
+                if !vocab.contains_key(eof) {
+                    key2id.insert(eof.to_string(), vocab_size as i32 + 2);
+                }
                 key2id
             },
             int2str: {
@@ -75,6 +79,9 @@ impl SimpleTokenizerV2 {
                     vocab.iter().map(|(k, v)| (*v, k.to_string())).collect();
                 if insert_unknow {
                     id2key.insert(vocab_size as i32 + 1, unknow.to_string());
+                }
+                if !vocab.contains_key(eof) {
+                    id2key.insert(vocab_size as i32 + 2, eof.to_string());
                 }
                 id2key
             },
@@ -167,22 +174,23 @@ mod tests {
     #[rstest]
     fn test_simple_tokenizer_v2_encode(vocab: HashMap<&str, i32>) {
         let tokenizer = SimpleTokenizerV2::from_vocab(vocab);
-        let token_ids = tokenizer.encode("this is a test!");
+        let token_ids = tokenizer.encode("this is a test! <|endoftext|>");
 
         assert_eq!(1, token_ids[0]);
         assert_eq!(2, token_ids[1]);
         assert_eq!(3, token_ids[2]);
         assert_eq!(4, token_ids[3]);
         assert_eq!(5, token_ids[4]);
+        assert_eq!(6, token_ids[5]);
     }
 
     #[rstest]
     fn test_simple_tokenzier_v2_decode(vocab: HashMap<&str, i32>) {
         let tokenizer = SimpleTokenizerV2::from_vocab(vocab);
 
-        let token_ids = vec![1, 2, 3, 4, 5];
+        let token_ids = vec![1, 2, 3, 4, 5, 6];
         let text = tokenizer.decode(token_ids);
 
-        assert_eq!("this is a test <|unk|>", text);
+        assert_eq!("this is a test <|unk|> <|endoftext|>", text);
     }
 }
