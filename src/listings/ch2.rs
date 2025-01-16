@@ -240,9 +240,21 @@ mod tests {
         let txt = "In the heart of the city";
 
         let tokenizer = get_bpe_from_model("gpt2").unwrap();
-        let dataset = GPTDatasetV1::new(txt, tokenizer, 2, 1);
-        println!("{:?}", dataset.input_ids());
-        println!("{:?}", dataset.target_ids());
-        assert_eq!(4, dataset.input_ids().len());
+        let token_ids = tokenizer.encode_with_special_tokens(txt);
+        let stride = 1_usize;
+        let max_length = 2_usize;
+        let dataset = GPTDatasetV1::new(txt, tokenizer, max_length, stride);
+
+        for mx in 1..max_length {
+            // test target alignments
+            assert_eq!(dataset.input_ids[0][mx], dataset.target_ids[0][mx - 1]);
+        }
+
+        for ix in 1..dataset.input_ids.len() {
+            // test max length per input
+            assert_eq!(dataset.input_ids[ix].len(), max_length);
+            // test stride alignments
+            assert_eq!(dataset.input_ids[ix][0], token_ids[ix * stride]);
+        }
     }
 }

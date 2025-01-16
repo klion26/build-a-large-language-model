@@ -6,3 +6,6 @@ lint:
 
 check:
    cargo check
+
+test:
+    cargo nextest run
