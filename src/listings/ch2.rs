@@ -1,5 +1,6 @@
 use regex::{Captures, Regex};
 use std::collections::HashMap;
+use tiktoken_rs::CoreBPE;
 
 /// Listing 2.3
 #[derive(Default, Debug)]
@@ -114,6 +115,44 @@ impl SimpleTokenizerV2 {
     }
 }
 
+/// Listing 2.5 A dataset for batched inputs and targets
+pub struct GPTDatasetV1 {
+    input_ids: Vec<Vec<u32>>,
+    target_ids: Vec<Vec<u32>>,
+}
+
+impl GPTDatasetV1 {
+    pub fn new(input: &str, tokenizer: CoreBPE, max_length: usize, stride: usize) -> Self {
+        let token_ids = tokenizer.encode_with_special_tokens(input);
+
+        println!("token_id:{:?}", token_ids);
+        let mut input_ids: Vec<Vec<u32>> = Vec::default();
+        let mut target_ids: Vec<Vec<u32>> = Vec::default();
+
+        // get input_ids and target_ids;
+        for i in (0..token_ids.len() - max_length).step_by(stride) {
+            let input_chunk = &token_ids[i..(i + max_length)];
+            let target_chunk = &token_ids[(i + 1_usize)..(i + max_length + 1_usize)];
+
+            input_ids.push(input_chunk.to_vec());
+            target_ids.push(target_chunk.to_vec());
+        }
+
+        GPTDatasetV1 {
+            input_ids,
+            target_ids,
+        }
+    }
+
+    pub fn input_ids(&self) -> &Vec<Vec<u32>> {
+        &self.input_ids
+    }
+
+    pub fn target_ids(&self) -> &Vec<Vec<u32>> {
+        &self.target_ids
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -185,12 +224,25 @@ mod tests {
     }
 
     #[rstest]
-    fn test_simple_tokenzier_v2_decode(vocab: HashMap<&str, i32>) {
+    fn test_simple_tokenizer_v2_decode(vocab: HashMap<&str, i32>) {
         let tokenizer = SimpleTokenizerV2::from_vocab(vocab);
 
         let token_ids = vec![1, 2, 3, 4, 5, 6];
         let text = tokenizer.decode(token_ids);
 
         assert_eq!("this is a test <|unk|> <|endoftext|>", text);
+    }
+
+    #[rstest]
+    fn test_gpt_dataset_v1_init() {
+        use tiktoken_rs::get_bpe_from_model;
+
+        let txt = "In the heart of the city";
+
+        let tokenizer = get_bpe_from_model("gpt2").unwrap();
+        let dataset = GPTDatasetV1::new(txt, tokenizer, 2, 1);
+        println!("{:?}", dataset.input_ids());
+        println!("{:?}", dataset.target_ids());
+        assert_eq!(4, dataset.input_ids().len());
     }
 }

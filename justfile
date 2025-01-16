@@ -1,9 +1,8 @@
-format:
-   pre-commit install
-   pre-commit run fmt
+fmt:
+   cargo fmt
 
 lint:
-   pre-commit install && pre-commit run clippy
+   cargo clippy
 
 check:
-   pre-commit install && pre-commit run cargo-check
+   cargo check
