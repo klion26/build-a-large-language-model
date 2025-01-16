@@ -1,3 +1,5 @@
+use candle_core::{Device, Result, Tensor};
+use rand::{seq::SliceRandom, thread_rng};
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 use tiktoken_rs::CoreBPE;
@@ -151,12 +153,67 @@ impl GPTDatasetV1 {
     pub fn target_ids(&self) -> &Vec<Vec<u32>> {
         &self.target_ids
     }
+
+    pub fn len(&self) -> usize {
+        self.input_ids.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.input_ids.len() == 0
+    }
+
+    pub fn get_pair_at_index(&self, idx: usize) -> (&Vec<u32>, &Vec<u32>) {
+        (&self.input_ids[idx], &self.target_ids[idx])
+    }
+}
+
+/// Listing 2.6 A data loader to generate batches with input-target pairs
+pub struct GPTDatasetIter<'a> {
+    dataset: &'a GPTDatasetV1,
+    device: Device,
+    remaining_indices: Vec<usize>,
+}
+
+impl<'a> GPTDatasetIter<'a> {
+    pub fn new(dataset: &'a GPTDatasetV1, device: Device, shuffle: bool) -> Self {
+        // use rev() so that we use Vec::pop() to keep the asc order
+        let mut remaining_indices = (0..dataset.len()).rev().collect::<Vec<_>>();
+        if shuffle {
+            remaining_indices.shuffle(&mut thread_rng());
+        }
+
+        Self {
+            dataset,
+            device,
+            remaining_indices,
+        }
+    }
+}
+
+impl Iterator for GPTDatasetIter<'_> {
+    type Item = Result<(Tensor, Tensor)>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        // the remaining indices is reverse order,
+        // we use pop here to keep the order asc
+        if let Some(idx) = self.remaining_indices.pop() {
+            let (input_ids, target_ids) = self.dataset.get_pair_at_index(idx);
+
+            // turn into Tensors and return
+            let input_tensor = Tensor::new(&input_ids[..], &self.device);
+            let target_tensor = Tensor::new(&target_ids[..], &self.device);
+            Some(candle_core::error::zip(input_tensor, target_tensor))
+        } else {
+            None
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use rstest::*;
+    use tiktoken_rs::get_bpe_from_model;
 
     #[fixture]
     pub fn vocab() -> HashMap<&'static str, i32> {
@@ -168,6 +225,13 @@ mod tests {
         vocab.entry("test").or_insert(4);
 
         vocab
+    }
+
+    #[fixture]
+    pub fn txt_tokenizer() -> (String, CoreBPE) {
+        let txt = "In the heart of the city";
+        let tokenizer = get_bpe_from_model("gpt2").unwrap();
+        (txt.to_string(), tokenizer)
     }
 
     #[rstest]
@@ -234,16 +298,11 @@ mod tests {
     }
 
     #[rstest]
-    fn test_gpt_dataset_v1_init() {
-        use tiktoken_rs::get_bpe_from_model;
-
-        let txt = "In the heart of the city";
-
-        let tokenizer = get_bpe_from_model("gpt2").unwrap();
-        let token_ids = tokenizer.encode_with_special_tokens(txt);
+    fn test_gpt_dataset_v1_init(#[from(txt_tokenizer)] (txt, tokenizer): (String, CoreBPE)) {
+        let token_ids = tokenizer.encode_with_special_tokens(&txt[..]);
         let stride = 1_usize;
         let max_length = 2_usize;
-        let dataset = GPTDatasetV1::new(txt, tokenizer, max_length, stride);
+        let dataset = GPTDatasetV1::new(&txt[..], tokenizer, max_length, stride);
 
         for mx in 1..max_length {
             // test target alignments
@@ -256,5 +315,34 @@ mod tests {
             // test stride alignments
             assert_eq!(dataset.input_ids[ix][0], token_ids[ix * stride]);
         }
+    }
+
+    #[rstest]
+    fn test_gpt_dataset_v1_iter(#[from(txt_tokenizer)] (txt, tokenizer): (String, CoreBPE)) {
+        let stride = 1_usize;
+        let max_length = 3_usize;
+        let dataset = GPTDatasetV1::new(&txt[..], tokenizer, max_length, stride);
+        let dev = Device::cuda_if_available(0).unwrap();
+        let mut iter = GPTDatasetIter::new(&dataset, dev, false);
+        let mut count = 0_usize;
+
+        while let Some(Ok((this_inputs, this_targets))) = iter.next() {
+            let this_inputs_vec: Vec<u32> = this_inputs.to_vec1::<u32>().unwrap();
+            let this_target_vec: Vec<u32> = this_targets.to_vec1::<u32>().unwrap();
+
+            assert_eq!(this_inputs.shape().dims()[0], max_length);
+            assert_eq!(this_targets.shape().dims()[0], max_length);
+
+            for (idx, token_id) in this_inputs_vec.iter().enumerate() {
+                assert_eq!(*token_id, dataset.input_ids[count][idx]);
+            }
+            for (idx, token_id) in this_target_vec.iter().enumerate() {
+                assert_eq!(*token_id, dataset.target_ids[count][idx]);
+            }
+
+            count += 1;
+        }
+
+        assert_eq!(dataset.len(), count);
     }
 }
