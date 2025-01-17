@@ -168,6 +168,8 @@ impl GPTDatasetV1 {
 }
 
 /// Listing 2.6 A data loader to generate batches with input-target pairs
+/// We can use `GPTDatasetIter` with `candle_dataset::Batcher` to get desired
+/// batches of examples.
 pub struct GPTDatasetIter<'a> {
     dataset: &'a GPTDatasetV1,
     device: Device,
@@ -211,7 +213,10 @@ impl Iterator for GPTDatasetIter<'_> {
 
 #[cfg(test)]
 mod tests {
+    use core::panic;
+
     use super::*;
+    use candle_datasets::Batcher;
     use rstest::*;
     use tiktoken_rs::get_bpe_from_model;
 
@@ -232,6 +237,13 @@ mod tests {
         let txt = "In the heart of the city";
         let tokenizer = get_bpe_from_model("gpt2").unwrap();
         (txt.to_string(), tokenizer)
+    }
+
+    #[fixture]
+    pub fn gpt_dataset(#[from(txt_tokenizer)] (txt, tokenizer): (String, CoreBPE)) -> GPTDatasetV1 {
+        let stride = 1_usize;
+        let max_length = 2_usize;
+        GPTDatasetV1::new(&txt[..], tokenizer, max_length, stride)
     }
 
     #[rstest]
@@ -344,5 +356,25 @@ mod tests {
         }
 
         assert_eq!(dataset.len(), count);
+    }
+
+    #[rstest]
+    fn test_gpt_dataset_with_batch(
+        #[from(gpt_dataset)] dataset: GPTDatasetV1,
+        #[values(Device::Cpu, Device::cuda_if_available(0).unwrap())] dev: Device,
+    ) {
+        let iter = GPTDatasetIter::new(&dataset, dev, false);
+        let batch_size = 2_usize;
+        let mut batch_iter = Batcher::new_r2(iter)
+            .batch_size(batch_size)
+            .return_last_incomplete_batch(true);
+
+        match batch_iter.next() {
+            Some(Ok((inputs, targets))) => {
+                println!("inputs: {:?}\n\ntargets: {:?}", inputs, targets);
+            }
+            Some(Err(err)) => panic!("{}", err),
+            None => panic!("None"),
+        }
     }
 }
