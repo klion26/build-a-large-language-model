@@ -9,3 +9,6 @@ check:
 
 test:
     cargo nextest run
+
+run:
+    cargo run --release

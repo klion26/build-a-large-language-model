@@ -13,6 +13,7 @@ candle-core = { git = "https://github.com/huggingface/candle.git", version = "0.
 candle-nn = { git = "https://github.com/huggingface/candle.git", version = "0.8.2"}
 candle-datasets = { git = "https://github.com/huggingface/candle.git", version = "0.8.2" }
 rand = "0.8.5"
+phf =  { version = "0.11.3", features = ["macros"] }
 
 [features]
 default = [] # No features are enabled by default
