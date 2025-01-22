@@ -127,7 +127,7 @@ impl GPTDatasetV1 {
     pub fn new(input: &str, tokenizer: CoreBPE, max_length: usize, stride: usize) -> Self {
         let token_ids = tokenizer.encode_with_special_tokens(input);
 
-        println!("token_id:{:?}", token_ids);
+        // println!("token_id:{:?}", token_ids);
         let mut input_ids: Vec<Vec<u32>> = Vec::default();
         let mut target_ids: Vec<Vec<u32>> = Vec::default();
 
