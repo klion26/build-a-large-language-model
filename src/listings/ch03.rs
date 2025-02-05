@@ -5,10 +5,10 @@ use candle_nn::{linear_b, Linear, VarBuilder};
 /// `SelfAttentionV1` is a simple implementation of a self-attention layer.
 /// It follows a similar interface to other candle `Module`s.
 pub struct SelfAttentionV1 {
-    w_query: Tensor,
-    w_key: Tensor,
-    w_value: Tensor,
-    scaling: f64,
+    pub w_query: Tensor,
+    pub w_key: Tensor,
+    pub w_value: Tensor,
+    pub scaling: f64,
 }
 
 impl SelfAttentionV1 {
@@ -57,9 +57,9 @@ impl Module for SelfAttentionV1 {
 /// Listing 3.2
 /// Note: `candle_nn::linear` takes in dimensions in reverse.
 pub struct SelfAttentionV2 {
-    w_query: Linear,
-    w_key: Linear,
-    w_value: Linear,
+    pub w_query: Linear,
+    pub w_key: Linear,
+    pub w_value: Linear,
     scaling: f64,
 }
 

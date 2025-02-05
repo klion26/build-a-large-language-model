@@ -239,3 +239,37 @@ impl Example for EG04 {
         println!("context vectors: {:?}", context_vectors.to_vec2::<f32>());
     }
 }
+
+/// Example 03.05
+pub struct EG05;
+
+impl Example for EG05 {
+    fn description(&self) -> String {
+        let desc = "Implement self-attention mechanism to compute contextualized vectors, using candle_nn::Linear.";
+        String::from(desc)
+    }
+
+    fn page_source(&self) -> usize {
+        73_usize
+    }
+
+    fn main(&self) {
+        use crate::listings::ch03::SelfAttentionV2;
+        use candle_core::{DType, Module};
+        use candle_nn::{VarBuilder, VarMap};
+
+        let inputs = get_inputs();
+        let d_in = inputs.dims()[1]; // input embedding dim
+        let d_out = 2_usize;
+
+        // construct self attention layer
+        let varmap = VarMap::new();
+        let vb = VarBuilder::from_varmap(&varmap, DType::F32, &Device::Cpu);
+        let attn_v2_layer = SelfAttentionV2::new(d_in, d_out, false, vb.pp("attn")).unwrap();
+
+        // run a random, embedded input sequence through self-attention
+        let context_vectors = attn_v2_layer.forward(&inputs).unwrap();
+
+        println!("context vectors: {:?}", context_vectors.to_vec2::<f32>());
+    }
+}
