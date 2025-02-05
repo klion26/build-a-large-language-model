@@ -18,7 +18,7 @@ fn get_inputs() -> Tensor {
     .unwrap()
 }
 /// Example 03.01
-pub struct EG01 {}
+pub struct EG01;
 
 impl Example for EG01 {
     fn description(&self) -> String {
@@ -108,7 +108,7 @@ impl Example for EG01 {
     }
 }
 
-pub struct EG02 {}
+pub struct EG02;
 
 impl Example for EG02 {
     fn description(&self) -> String {
@@ -143,7 +143,7 @@ impl Example for EG02 {
     }
 }
 
-pub struct EG03 {}
+pub struct EG03;
 
 impl Example for EG03 {
     fn description(&self) -> String {
@@ -200,5 +200,42 @@ impl Example for EG03 {
 
         let context_vec_2 = attn_weights.matmul(&values).unwrap();
         println!("Context vector 2: {:?}", context_vec_2.to_vec2::<f32>());
+    }
+}
+
+/// Example 03.04
+pub struct EG04;
+
+impl Example for EG04 {
+    fn description(&self) -> String {
+        String::from(
+            "Implement self-attention mechanism to compute context vectors in the input sequence.",
+        )
+    }
+
+    fn page_source(&self) -> usize {
+        71_usize
+    }
+
+    fn main(&self) {
+        use crate::listings::ch03::SelfAttentionV1;
+        use candle_core::{DType, Module};
+        use candle_nn::{VarBuilder, VarMap};
+
+        let inputs = get_inputs();
+        let d_in = inputs.dims()[1]; // input embedding dim
+        let d_out = 2_usize;
+
+        // construct self attention layer
+        let varmap = VarMap::new();
+        let vb = VarBuilder::from_varmap(&varmap, DType::F32, &Device::Cpu);
+        let attn_v1_layer = SelfAttentionV1::new(d_in, d_out, vb.pp("attn")).unwrap();
+
+        // run a random, embedded input sequence through self-attention
+        let input_length = inputs.dims()[0];
+        let xs = Tensor::rand(0f32, 1f32, (input_length, d_in), &Device::Cpu).unwrap();
+        let context_vectors = attn_v1_layer.forward(&xs).unwrap();
+
+        println!("context vectors: {:?}", context_vectors.to_vec2::<f32>());
     }
 }
