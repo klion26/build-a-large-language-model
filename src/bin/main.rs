@@ -27,6 +27,7 @@ static EXAMPLE_REGISTRY: LazyLock<HashMap<&'static str, Box<dyn Example>>> = Laz
     m.insert("03.05", Box::new(ch03::EG05));
     m.insert("03.06", Box::new(ch03::EG06));
     m.insert("03.07", Box::new(ch03::EG07));
+    m.insert("03.08", Box::new(ch03::EG08));
     m
 });
 
@@ -36,6 +37,6 @@ fn main() {
     let ex = exercise_registry.get("3.1").unwrap();
     ex.main();
 
-    let eg = example_registry.get("03.07").unwrap();
+    let eg = example_registry.get("03.08").unwrap();
     eg.main();
 }
