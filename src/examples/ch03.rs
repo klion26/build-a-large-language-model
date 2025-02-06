@@ -273,3 +273,63 @@ impl Example for EG05 {
         println!("context vectors: {:?}", context_vectors.to_vec2::<f32>());
     }
 }
+
+/// Example 03.06
+pub struct EG06;
+
+impl Example for EG06 {
+    fn description(&self) -> String {
+        String::from("Compute causal attention weights.")
+    }
+
+    fn page_source(&self) -> usize {
+        75_usize
+    }
+
+    fn main(&self) {
+        use crate::listings::ch03::SelfAttentionV2;
+        use candle_core::{DType, Module, D};
+        use candle_nn::ops::softmax;
+        use candle_nn::{VarBuilder, VarMap};
+
+        let inputs = get_inputs();
+        let d_in = inputs.dims()[1];
+        let d_out = 2_usize;
+
+        // construct self attention layer
+        let varmap = VarMap::new();
+        let vb = VarBuilder::from_varmap(&varmap, DType::F32, &Device::Cpu);
+        let attn_v2_layer = SelfAttentionV2::new(d_in, d_out, false, vb.pp("attn")).unwrap();
+
+        // attn scores
+        let queries = attn_v2_layer.w_query().forward(&inputs).unwrap();
+        let keys = attn_v2_layer.w_key().forward(&inputs).unwrap();
+        let attn_score = queries.matmul(&keys.t().unwrap()).unwrap();
+        let attn_weights = softmax(&attn_score, 1).unwrap();
+
+        // causal mask
+        let context_length = attn_score.dims()[0];
+        // how to write this???
+        let mas_simple: Vec<_> = (0..context_length as u32)
+            .flat_map(|i| (0..context_length as u32).map(move |j| f32::from(j <= i)))
+            .collect();
+
+        let mask_simple = Tensor::from_slice(
+            &mas_simple,
+            (context_length, context_length),
+            inputs.device(),
+        )
+        .unwrap();
+
+        let masked_simple = (attn_weights * mask_simple).unwrap();
+        println!("maksed simple: {:?}", masked_simple.to_vec2::<f32>());
+
+        let row_sums = masked_simple.sum_keepdim(D::Minus1).unwrap();
+        let masked_simple_norm = masked_simple.broadcast_div(&row_sums).unwrap();
+        // let masked_simple_softmax = softmax(&masked_simple, 1).unwrap();
+        println!(
+            "softmax maksed simple: {:?}",
+            masked_simple_norm.to_vec2::<f32>()
+        );
+    }
+}

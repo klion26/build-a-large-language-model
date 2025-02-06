@@ -57,9 +57,9 @@ impl Module for SelfAttentionV1 {
 /// Listing 3.2
 /// Note: `candle_nn::linear` takes in dimensions in reverse.
 pub struct SelfAttentionV2 {
-    pub w_query: Linear,
-    pub w_key: Linear,
-    pub w_value: Linear,
+    w_query: Linear,
+    w_key: Linear,
+    w_value: Linear,
     scaling: f64,
 }
 

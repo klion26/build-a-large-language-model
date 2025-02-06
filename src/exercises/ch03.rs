@@ -19,9 +19,9 @@ impl Exercise for X3P1 {
         let attn_v2_layer = SelfAttentionV2::new(d_in, d_out, false, vb.pp("attn_v2")).unwrap();
 
         let attn_v1_layer = SelfAttentionV1 {
-            w_query: attn_v2_layer.w_query.weight().t().unwrap(),
-            w_key: attn_v2_layer.w_key.weight().t().unwrap(),
-            w_value: attn_v2_layer.w_value.weight().t().unwrap(),
+            w_query: attn_v2_layer.w_query().weight().t().unwrap(),
+            w_key: attn_v2_layer.w_key().weight().t().unwrap(),
+            w_value: attn_v2_layer.w_value().weight().t().unwrap(),
             scaling: 1. / (attn_v2_layer.w_key().weight().dims()[0] as f64).sqrt(),
         };
 
