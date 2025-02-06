@@ -51,7 +51,7 @@ impl Example for EG02 {
         let stride = max_length;
         let dataset = GPTDatasetV1::new(&raw_text[..], tokenizer, max_length, stride);
 
-        let device = Device::Cpu;
+        let device = Device::cuda_if_available(0).unwrap();
         let iter = GPTDatasetIter::new(&dataset, device, false);
         let batch_size = 8_usize;
         let mut batch_iter = Batcher::new_r2(iter).batch_size(batch_size);
@@ -60,8 +60,8 @@ impl Example for EG02 {
         match batch_iter.next() {
             Some(Ok((inputs, _target))) => {
                 let varmap = VarMap::new();
-                let dev = Device::Cpu;
-                let vs = VarBuilder::from_varmap(&varmap, DType::F32, &dev);
+                let dev = inputs.device();
+                let vs = VarBuilder::from_varmap(&varmap, DType::F32, dev);
 
                 let vocab_size = 50_257_usize;
                 let output_dim = 256_usize;
@@ -86,7 +86,7 @@ impl Example for EG02 {
                 let pos_embedding_layer =
                     embedding(context_length, output_dim, vs.pp("pos_emb")).unwrap();
 
-                let pos_ids = Tensor::arange(0_u32, context_length as u32, &dev).unwrap();
+                let pos_ids = Tensor::arange(0_u32, context_length as u32, dev).unwrap();
 
                 let pos_embeddings = pos_embedding_layer
                     .embeddings()
