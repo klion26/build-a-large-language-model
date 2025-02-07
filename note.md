@@ -8,6 +8,7 @@
 3. normalize the result for each input(the first dim in the two-dim matrix)
    reason from the book:
   `The main goal behind the normalization is to obtain attention weights that sum up to 1. This normalization is a convention that is useful for interpretation and maintaining training stability in an LLM.`
+  `The reason for the normalization by the embedding dimension size is to improve the training performance by avoiding samll gradients`
 4. set three attention weight matrix(`query` - the current input, `key` - the index for the `value` will return for the `query`, and `value` - the return value for the `query`)
 5. update attention weight matrix with input(train)
 6. mask out the future tokens that did not be needed(eg, the input come before the `query`)

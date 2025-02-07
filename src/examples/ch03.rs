@@ -307,10 +307,12 @@ impl EG06 {
         let queries = attn_v2_layer.w_query().forward(&inputs)?;
         let keys = attn_v2_layer.w_key().forward(&inputs)?;
         let attn_score = queries.matmul(&keys.t()?)?;
-        let attn_weights = softmax(&attn_score, 1)?;
+
+        let scaling = 1. / (keys.dims()[1] as f64).sqrt();
+        let attn_weights = softmax(&(attn_score * scaling)?, 1)?;
 
         // causal mask
-        let context_length = attn_score.dims()[0];
+        let context_length = inputs.dims()[0];
         // how to write this???
         let mas_simple: Vec<_> = (0..context_length as u32)
             .flat_map(|i| (0..context_length as u32).map(move |j| f32::from(j <= i)))
