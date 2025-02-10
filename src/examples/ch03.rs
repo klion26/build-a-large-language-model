@@ -1,5 +1,5 @@
 use crate::Example;
-use candle_core::{Device, IndexOp, Result, Tensor};
+use candle_core::{Device, IndexOp, Module, Result, Tensor};
 use candle_nn::init::DEFAULT_KAIMING_NORMAL;
 use candle_nn::ops::softmax;
 
@@ -430,5 +430,40 @@ impl Example for EG08 {
         let dropped_out = dropout.forward(&attn_weights, true).unwrap();
         // let dropped_out = candle_nn::ops::dropout(&attn_weights, 0.5).unwrap();
         println!("dropped_out: {:?}", dropped_out.to_vec2::<f32>());
+    }
+}
+
+/// Example 03.09
+pub struct EG09;
+
+impl Example for EG09 {
+    fn description(&self) -> String {
+        String::from("Example usage of `CausalAttention`.")
+    }
+
+    fn page_source(&self) -> usize {
+        81_usize
+    }
+
+    fn main(&self) {
+        use crate::listings::ch03::CausalAttention;
+        use candle_core::{DType, Tensor};
+        use candle_nn::{VarBuilder, VarMap};
+
+        // create batch
+        let inputs = get_inputs();
+        let (d_in, d_out) = (inputs.dims()[1], 2_usize);
+        let batch = Tensor::stack(&[&inputs, &inputs], 0usize).unwrap();
+        println!("batch shape: {:?}", batch);
+
+        // build causal attn layer
+        let varmap = VarMap::new();
+        let vb = VarBuilder::from_varmap(&varmap, DType::F32, inputs.device());
+        let causal_attn =
+            CausalAttention::new(d_in, d_out, 0.0_f32, false, vb.pp("causal_attn")).unwrap();
+
+        // context vectors
+        let context_vectors = causal_attn.forward(&batch).unwrap();
+        println!("context_vectors.shape: {:?}", context_vectors);
     }
 }
