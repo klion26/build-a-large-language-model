@@ -13,4 +13,8 @@
 5. update attention weight matrix with input(train)
 6. mask out the future tokens that did not be needed(eg, the input come before the `query`)
 7. drop out some tokens to prevent overfitting
-   
+
+
+adjust the `d_out` for each `CausalAttention` instance (`MultiHeadAttentionWrapper` also) will have
+an impact to the dimension of the final context_vector. (see `d_out` in `X3P2`).
+The `MultiHeadAttentionWrapper` will concat each underlying instance. 
