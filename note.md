@@ -19,6 +19,13 @@ adjust the `d_out` for each `CausalAttention` instance (`MultiHeadAttentionWrapp
 an impact to the dimension of the final context_vector. (see `d_out` in `X3P2`).
 The `MultiHeadAttentionWrapper` will concat each underlying instance.
 
-`MultiHeadAttention` will initialize one large weight matrix, only perform one matrix multiplication with the inputs
+`MultiHeadAttention` will initialize one large weight matrix, only perform **one matrix multiplication** with the inputs
 to obtain a query matrix Q, and then split the query matrix into Q1 and Q2.
 `MultiHeadAttentionWrapper` will split the weight matrix into two sub matrix, and do two matrix multiplication.
+
+`MultiHeadAttention` is much more efficient than `MultiHeadAttentionWrapper` because there are less matrix multiplication operators.
+
+In `MultiHeadAttention` we need to perform a transpose operation, the reason is that: 
+This transposition is crucial for correctly aligning the queries, keys, and values across the different heads and 
+performing batched matrix multiplications efficiently.
+> From the book
