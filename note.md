@@ -17,4 +17,8 @@
 
 adjust the `d_out` for each `CausalAttention` instance (`MultiHeadAttentionWrapper` also) will have
 an impact to the dimension of the final context_vector. (see `d_out` in `X3P2`).
-The `MultiHeadAttentionWrapper` will concat each underlying instance. 
+The `MultiHeadAttentionWrapper` will concat each underlying instance.
+
+`MultiHeadAttention` will initialize one large weight matrix, only perform one matrix multiplication with the inputs
+to obtain a query matrix Q, and then split the query matrix into Q1 and Q2.
+`MultiHeadAttentionWrapper` will split the weight matrix into two sub matrix, and do two matrix multiplication.

@@ -1,5 +1,5 @@
 use candle_core::{Device, Result, Tensor};
-use rand::{seq::SliceRandom, thread_rng};
+use rand::{rng, seq::SliceRandom};
 use regex::{Captures, Regex};
 use std::collections::HashMap;
 use tiktoken_rs::CoreBPE;
@@ -181,7 +181,7 @@ impl<'a> GPTDatasetIter<'a> {
         // use rev() so that we use Vec::pop() to keep the asc order
         let mut remaining_indices = (0..dataset.len()).rev().collect::<Vec<_>>();
         if shuffle {
-            remaining_indices.shuffle(&mut thread_rng());
+            remaining_indices.shuffle(&mut rng());
         }
 
         Self {
