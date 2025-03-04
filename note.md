@@ -29,3 +29,9 @@ In `MultiHeadAttention` we need to perform a transpose operation, the reason is 
 This transposition is crucial for correctly aligning the queries, keys, and values across the different heads and 
 performing batched matrix multiplications efficiently.
 > From the book
+
+Why multi-head 
+> The multi-head component involves splitting the attention mechanism into multiple "heads".
+> Each head learns different aspects of the data, allowing the model to simultaneously attend to information
+> from different aspects of the data, allowing the model to simultaneously attend to information from
+> different representation subspaces at different positions. This improves the model's performance in complex tasks.
