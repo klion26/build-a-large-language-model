@@ -364,7 +364,7 @@ checksum = "325918d6fe32f23b19878fe4b34794ae41fc19ddbe53b10571a4874d44ffd39b"
 [[package]]
 name = "candle-core"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#fd7f7242a1e5ebb21d5f17b03a3fa81519818919"
+source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
 dependencies = [
  "byteorder",
  "candle-kernels",
@@ -388,7 +388,7 @@ dependencies = [
 [[package]]
 name = "candle-datasets"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#fd7f7242a1e5ebb21d5f17b03a3fa81519818919"
+source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
 dependencies = [
  "byteorder",
  "candle-core",
@@ -405,7 +405,7 @@ dependencies = [
 [[package]]
 name = "candle-kernels"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#fd7f7242a1e5ebb21d5f17b03a3fa81519818919"
+source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
 dependencies = [
  "bindgen_cuda",
 ]
@@ -413,7 +413,7 @@ dependencies = [
 [[package]]
 name = "candle-nn"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#fd7f7242a1e5ebb21d5f17b03a3fa81519818919"
+source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
 dependencies = [
  "candle-core",
  "half",
