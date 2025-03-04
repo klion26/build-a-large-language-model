@@ -183,7 +183,7 @@ impl Module for CausalAttention {
         let masked = masked_fill(&attn_scores, &mask.broadcast_left(b)?, f32::NEG_INFINITY)?;
 
         // scale
-        let mut attn_weights = softmax(&(masked * self.scaling)?, 1)?;
+        let mut attn_weights = softmax(&(masked * self.scaling)?, D::Minus1)?;
         // dropout
         attn_weights = self.dropout.forward(&attn_weights, true)?;
 
@@ -303,6 +303,10 @@ impl MultiHeadAttention {
     pub fn w_query(&self) -> &Linear {
         &self.w_query
     }
+
+    pub fn head_dim(&self) -> usize {
+        self.head_dim
+    }
 }
 
 impl Module for MultiHeadAttention {
@@ -346,7 +350,7 @@ impl Module for MultiHeadAttention {
         )?;
 
         // scale
-        let mut attn_weights = softmax(&(masked * self.scaling)?, 1)?;
+        let mut attn_weights = softmax(&(masked * self.scaling)?, D::Minus1)?;
         // dropout
         attn_weights = self.dropout.forward(&attn_weights, true)?;
 
