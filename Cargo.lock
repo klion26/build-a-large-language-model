@@ -314,7 +314,7 @@ dependencies = [
  "regex",
  "rstest",
  "tiktoken-rs",
- "tokenizers 0.21.0",
+ "tokenizers",
 ]
 
 [[package]]
@@ -364,7 +364,7 @@ checksum = "325918d6fe32f23b19878fe4b34794ae41fc19ddbe53b10571a4874d44ffd39b"
 [[package]]
 name = "candle-core"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+source = "git+https://github.com/huggingface/candle.git#e286cf7cc9e34bc426a542264b818e35e6eed05b"
 dependencies = [
  "byteorder",
  "candle-kernels",
@@ -388,7 +388,7 @@ dependencies = [
 [[package]]
 name = "candle-datasets"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+source = "git+https://github.com/huggingface/candle.git#e286cf7cc9e34bc426a542264b818e35e6eed05b"
 dependencies = [
  "byteorder",
  "candle-core",
@@ -399,13 +399,13 @@ dependencies = [
  "parquet",
  "rand 0.8.5",
  "thiserror 1.0.69",
- "tokenizers 0.19.1",
+ "tokenizers",
 ]
 
 [[package]]
 name = "candle-kernels"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+source = "git+https://github.com/huggingface/candle.git#e286cf7cc9e34bc426a542264b818e35e6eed05b"
 dependencies = [
  "bindgen_cuda",
 ]
@@ -413,7 +413,7 @@ dependencies = [
 [[package]]
 name = "candle-nn"
 version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+source = "git+https://github.com/huggingface/candle.git#e286cf7cc9e34bc426a542264b818e35e6eed05b"
 dependencies = [
  "candle-core",
  "half",
@@ -3052,37 +3052,6 @@ checksum = "9117f5d4db391c1cf6927e7bea3db74b9a1c1add8f7eda9ffd5364f40f57b82f"
 dependencies = [
  "displaydoc",
  "zerovec",
-]
-
-[[package]]
-name = "tokenizers"
-version = "0.19.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e500fad1dd3af3d626327e6a3fe5050e664a6eaa4708b8ca92f1794aaf73e6fd"
-dependencies = [
- "aho-corasick",
- "derive_builder",
- "esaxx-rs",
- "getrandom 0.2.15",
- "itertools 0.12.1",
- "lazy_static",
- "log",
- "macro_rules_attribute",
- "monostate",
- "onig",
- "paste",
- "rand 0.8.5",
- "rayon",
- "rayon-cond",
- "regex",
- "regex-syntax",
- "serde",
- "serde_json",
- "spm_precompiled",
- "thiserror 1.0.69",
- "unicode-normalization-alignments",
- "unicode-segmentation",
- "unicode_categories",
 ]
 
 [[package]]
