@@ -35,3 +35,19 @@ Why multi-head
 > Each head learns different aspects of the data, allowing the model to simultaneously attend to information
 > from different aspects of the data, allowing the model to simultaneously attend to information from
 > different representation subspaces at different positions. This improves the model's performance in complex tasks.
+
+
+# Ch04
+ A GPT model
+ 
+[input from user] -> [tokenize] -> [embedding] -> [transformer block] -> [output layers]
+
+From [embedding layers] to [output layers] is GPT model
+
+the [transformer block] containing the masked multi-head attention module describled in ch03
+
+the [transformer block] contains 4 steps
+- Layer nomalization
+- GELU activation
+- Feed forward network
+- Shortcut connections
