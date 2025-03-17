@@ -8,7 +8,7 @@ authors = ["klion26 <klion26@apache.org>"]
 regex = "1.11.1"
 rstest = "0.25.0"
 tiktoken-rs = "0.6.0"
-tokenizers = "0.21.0"
+tokenizers = "0.21.1"
 candle-core = { git = "https://github.com/huggingface/candle.git", version = "0.8.2"}
 candle-nn = { git = "https://github.com/huggingface/candle.git", version = "0.8.2"}
 candle-datasets = { git = "https://github.com/huggingface/candle.git", version = "0.8.2" }
