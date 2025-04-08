@@ -51,3 +51,7 @@ the [transformer block] contains 4 steps
 - GELU activation
 - Feed forward network
 - Shortcut connections
+
+The main idea behind layer normalization is to adjust the activations(outputs) of a neural network layer
+to have a mean of 0 and a variance of 1, also known as unit variance.
+> but why do we need to do this?
