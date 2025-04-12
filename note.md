@@ -55,3 +55,7 @@ the [transformer block] contains 4 steps
 The main idea behind layer normalization is to adjust the activations(outputs) of a neural network layer
 to have a mean of 0 and a variance of 1, also known as unit variance.
 > but why do we need to do this?
+
+The `scale` and `shift` in Layer normalization are two trainable parameters that the LLM automatically adjusts during training
+if it is determined that doing so would improve the model's performance on its training task.
+> How to detect whether need to adjust the `scale` and `shift`?
