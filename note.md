@@ -59,3 +59,10 @@ to have a mean of 0 and a variance of 1, also known as unit variance.
 The `scale` and `shift` in Layer normalization are two trainable parameters that the LLM automatically adjusts during training
 if it is determined that doing so would improve the model's performance on its training task.
 > How to detect whether need to adjust the `scale` and `shift`?
+
+> Historically, the ReLU activation function has been commonly used in deep learning due to its simplicity and effectiveness
+> across various neural network architectures. However, in LLMs, several other activation functions are employed beyond
+> the traditional ReLU. Two notable examples are GELU(Gaussian error linear unit) and SwiGLU(Swish-gated linear unit).
+
+The smoothness of GELU can lead to better optimization properties during training, as it allows for more nuanced 
+adjustments to the model's parameters.(See Figure 4.18 for more detail)
