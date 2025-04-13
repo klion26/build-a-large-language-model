@@ -172,6 +172,37 @@ impl Module for GELU {
     }
 }
 
+/// Listing 4.4
+pub struct FeedForward {
+    layers: Sequential,
+}
+
+impl FeedForward {
+    pub fn new(cfg: Config, vb: VarBuilder<'_>) -> Result<Self> {
+        let layers = seq()
+            .add(linear_b(
+                cfg.emb_dim,
+                4_usize * cfg.emb_dim,
+                true,
+                vb.pp("first_layer"),
+            )?)
+            .add(GELU)
+            .add(linear_b(
+                4_usize * cfg.emb_dim,
+                cfg.emb_dim,
+                true,
+                vb.pp("second_layer"),
+            )?);
+        Ok(Self { layers })
+    }
+}
+
+impl Module for FeedForward {
+    fn forward(&self, xs: &Tensor) -> Result<Tensor> {
+        self.layers.forward(xs)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -293,5 +324,26 @@ mod tests {
             .unwrap(),
             [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
         );
+    }
+
+    #[rstest]
+    fn test_feedforward_init(vb: VarBuilder<'_>) {
+        let ff = FeedForward::new(Config::gpt_sm_test(), vb.pp("ff")).unwrap();
+
+        assert_eq!(ff.layers.len(), 3_i64);
+    }
+
+    #[rstest]
+    fn test_feedforward_forward(vb: VarBuilder<'_>) {
+        let cfg = Config::gpt_sm_test();
+        let ff = FeedForward::new(cfg, vb.pp("ff")).unwrap();
+
+        // create test batch
+        let (batch_size, seq_len) = (2_usize, 3_usize);
+        let batch_example =
+            Tensor::rand(0f32, 1f32, (batch_size, seq_len, cfg.emb_dim), vb.device()).unwrap();
+        let out = ff.forward(&batch_example).unwrap();
+
+        assert_eq!(out.dims(), &[batch_size, seq_len, cfg.emb_dim]);
     }
 }
