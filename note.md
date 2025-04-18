@@ -47,10 +47,10 @@ From [embedding layers] to [output layers] is GPT model
 the [transformer block] containing the masked multi-head attention module describled in ch03
 
 the [transformer block] contains 4 steps
-- Layer nomalization
-- GELU activation
-- Feed forward network
-- Shortcut connections
+- Layer nomalization   -- nomalization the input with mean 0 and variance 1
+- GELU activation      -- use a smooth activation
+- Feed forward network  -- add a new layer, to increase the representation of the model
+- Shortcut connections  - preserve the flow of gradients during the backward pass in training.
 
 The main idea behind layer normalization is to adjust the activations(outputs) of a neural network layer
 to have a mean of 0 and a variance of 1, also known as unit variance.
