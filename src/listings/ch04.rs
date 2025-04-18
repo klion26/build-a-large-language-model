@@ -1,6 +1,7 @@
-use candle_core::{Module, Result, Tensor, D};
+use candle_core::{Module, Result, Tensor, TensorId, D};
 use candle_nn::{embedding, linear_b, seq, Dropout, Embedding, Linear, Sequential, VarBuilder};
 use core::f64;
+use std::ops::Mul;
 
 const EPS: f32 = 1e-5;
 
@@ -163,9 +164,10 @@ pub struct GELU;
 impl Module for GELU {
     fn forward(&self, xs: &Tensor) -> Result<Tensor> {
         (0.5_f64 * xs)?.mul(
-            &((2_f64 / f64::consts::PI).sqrt()
-                * (xs
-                    + (xs.broadcast_pow(&Tensor::new(&[3_f32], xs.device())?)? * 0.044715_f64))?)?
+            &((2_f64 / f64::consts::PI).sqrt() * (xs + (xs.mul(xs)?.mul(xs)? * 0.044715_f64))?)?
+                // here can not use xs.broadcast_pow(), seems the broadcast_pow will do
+                // the pow function did not return the result we think such as below
+                // + (xs.broadcast_pow(&Tensor::full(3_f32, xs.dims(), xs.device())?)? * 0.044715_f64))?)?
                 .tanh()?
                 .broadcast_add(&Tensor::ones((1,), candle_core::DType::F32, xs.device())?)?,
         )
@@ -207,28 +209,29 @@ impl Module for FeedForward {
 /// ExampleDeepNeuralNetwork
 pub struct ExampleDeepNeuralNetwork {
     use_shortcut: bool,
-    layers: Vec<Sequential>,
+    pub layers: Vec<Sequential>,
+    pub tensor_ids: Vec<TensorId>, // to be able to print gradients from GradStore
 }
 
 impl ExampleDeepNeuralNetwork {
     pub fn new(use_shortcut: bool, layer_sizes: &[usize], vb: VarBuilder<'_>) -> Result<Self> {
         let mut layers: Vec<Sequential> = Vec::new();
+        let mut tensor_ids: Vec<TensorId> = Vec::new();
         for i in 0..layer_sizes.len() - 1_usize {
-            layers.push(
-                seq()
-                    .add(linear_b(
-                        layer_sizes[i],
-                        layer_sizes[i + 1],
-                        true,
-                        vb.pp(format!("layer-{}", i)),
-                    )?)
-                    .add(GELU),
-            )
+            let linear = linear_b(
+                layer_sizes[i],
+                layer_sizes[i + 1],
+                true,
+                vb.pp(format!("layer-{}", i)),
+            )?;
+            tensor_ids.push(linear.weight().id());
+            layers.push(seq().add(linear).add(GELU))
         }
 
         Ok(Self {
             use_shortcut,
             layers,
+            tensor_ids,
         })
     }
 }
@@ -238,13 +241,13 @@ impl Module for ExampleDeepNeuralNetwork {
         let mut x = xs.to_owned();
         for layer in self.layers.iter() {
             let layer_output = layer.forward(&x)?;
-            if (self.use_shortcut) && xs.dims() == layer_output.dims() {
+            if (self.use_shortcut) && (xs.dims() == layer_output.dims()) {
                 x = (xs + layer_output)?;
             } else {
                 x = layer_output;
             }
         }
-
+        println!("after {:?}", x.to_vec2::<f32>());
         Ok(x)
     }
 }

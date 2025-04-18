@@ -72,9 +72,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.95"
+version = "1.0.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
+checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
 name = "arbitrary"
@@ -306,6 +306,7 @@ dependencies = [
 name = "build-a-large-language-model"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "candle-core",
  "candle-datasets",
  "candle-nn",
@@ -314,7 +315,7 @@ dependencies = [
  "regex",
  "rstest",
  "tiktoken-rs",
- "tokenizers 0.21.0",
+ "tokenizers",
 ]
 
 [[package]]
@@ -363,8 +364,8 @@ checksum = "325918d6fe32f23b19878fe4b34794ae41fc19ddbe53b10571a4874d44ffd39b"
 
 [[package]]
 name = "candle-core"
-version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+version = "0.9.0-alpha.4"
+source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
 dependencies = [
  "byteorder",
  "candle-kernels",
@@ -374,7 +375,7 @@ dependencies = [
  "memmap2",
  "num-traits",
  "num_cpus",
- "rand 0.8.5",
+ "rand 0.9.0",
  "rand_distr",
  "rayon",
  "safetensors",
@@ -387,8 +388,8 @@ dependencies = [
 
 [[package]]
 name = "candle-datasets"
-version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+version = "0.9.0-alpha.4"
+source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
 dependencies = [
  "byteorder",
  "candle-core",
@@ -397,23 +398,23 @@ dependencies = [
  "image",
  "memmap2",
  "parquet",
- "rand 0.8.5",
+ "rand 0.9.0",
  "thiserror 1.0.69",
- "tokenizers 0.19.1",
+ "tokenizers",
 ]
 
 [[package]]
 name = "candle-kernels"
-version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+version = "0.9.0-alpha.4"
+source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
 dependencies = [
  "bindgen_cuda",
 ]
 
 [[package]]
 name = "candle-nn"
-version = "0.8.3"
-source = "git+https://github.com/huggingface/candle.git#add3a714aabed66687966c103b21e2f78f0d2e47"
+version = "0.9.0-alpha.4"
+source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
 dependencies = [
  "candle-core",
  "half",
@@ -544,9 +545,9 @@ checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
 name = "cudarc"
-version = "0.13.5"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b079aaf13324cd687bc32f9c8e06efe7d325b36063523a75ea0f6393b3450fea"
+checksum = "de8af7773407c3e19b72e7b88be9bfc578fc904e8b837ea0de95ce3696a03ad0"
 dependencies = [
  "half",
  "libloading",
@@ -1202,15 +1203,15 @@ dependencies = [
 
 [[package]]
 name = "half"
-version = "2.4.1"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6dd08c532ae367adf81c312a4580bc67f1d0fe8bc9c460520283f4c0ff277888"
+checksum = "459196ed295495a68f7d7fe1d84f6c4b7ff0e21fe3017b2f283c6fac3ad803c9"
 dependencies = [
  "bytemuck",
  "cfg-if",
  "crunchy",
  "num-traits",
- "rand 0.8.5",
+ "rand 0.9.0",
  "rand_distr",
 ]
 
@@ -2363,12 +2364,12 @@ dependencies = [
 
 [[package]]
 name = "rand_distr"
-version = "0.4.3"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32cb0b9bc82b0a0876c2dd994a7e7a2683d3e7390ca40e6886785ef0c7e3ee31"
+checksum = "6a8615d50dcf34fa31f7ab52692afec947c4dd0ab803cc87cb3b0b4570ff7463"
 dependencies = [
  "num-traits",
- "rand 0.8.5",
+ "rand 0.9.0",
 ]
 
 [[package]]
@@ -3056,37 +3057,6 @@ dependencies = [
 
 [[package]]
 name = "tokenizers"
-version = "0.19.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e500fad1dd3af3d626327e6a3fe5050e664a6eaa4708b8ca92f1794aaf73e6fd"
-dependencies = [
- "aho-corasick",
- "derive_builder",
- "esaxx-rs",
- "getrandom 0.2.15",
- "itertools 0.12.1",
- "lazy_static",
- "log",
- "macro_rules_attribute",
- "monostate",
- "onig",
- "paste",
- "rand 0.8.5",
- "rayon",
- "rayon-cond",
- "regex",
- "regex-syntax",
- "serde",
- "serde_json",
- "spm_precompiled",
- "thiserror 1.0.69",
- "unicode-normalization-alignments",
- "unicode-segmentation",
- "unicode_categories",
-]
-
-[[package]]
-name = "tokenizers"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ecededfed68a69bc657e486510089e255e53c3d38cc7d4d59c8742668ca2cae"
@@ -3270,9 +3240,9 @@ dependencies = [
 
 [[package]]
 name = "ug"
-version = "0.1.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03719c61a91b51541f076dfdba45caacf750b230cefaa4b32d6f5411c3f7f437"
+checksum = "90b70b37e9074642bc5f60bb23247fd072a84314ca9e71cdf8527593406a0dd3"
 dependencies = [
  "gemm 0.18.2",
  "half",
@@ -3291,9 +3261,9 @@ dependencies = [
 
 [[package]]
 name = "ug-cuda"
-version = "0.1.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50758486d7941f8b0a636ba7e29455c07071f41590beac1fd307ec893e8db69a"
+checksum = "14053653d0b7fa7b21015aa9a62edc8af2f60aa6f9c54e66386ecce55f22ed29"
 dependencies = [
  "cudarc",
  "half",
