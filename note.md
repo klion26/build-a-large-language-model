@@ -67,3 +67,20 @@ if it is determined that doing so would improve the model's performance on its t
 
 The smoothness of GELU can lead to better optimization properties during training, as it allows for more nuanced 
 adjustments to the model's parameters.(See Figure 4.18 for more detail)
+
+
+1. Inputs embedded into tokens
+2. Transformer block
+  2.1 First layer norm
+    2.1.1 LayerNorm1 
+    2.1.2 Maked multi-head attention
+    2.1.3 Dropout
+    2.1.4 Add short cut connector before 2.1(LayerNorm1)
+  2.2 Second layer norm
+    2.2.1 LayerNorm2
+    2.2.2 Feed forward
+      2.2.2.1 Linear layer
+      2.2.2.2 GELU activation
+      2.2.2.3 Linear layer
+    2.2.3 Dropout
+    2.2.4 Add shortcut connector before 2.2
