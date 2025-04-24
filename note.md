@@ -84,3 +84,14 @@ adjustments to the model's parameters.(See Figure 4.18 for more detail)
       2.2.2.3 Linear layer
     2.2.3 Dropout
     2.2.4 Add shortcut connector before 2.2
+
+
+![](https://raw.githubusercontent.com/klion26/ImageRepo/master/20250424190512.png)
+> The pic above is an overview of the GPT model architecture showing the flow of data through the GPT model.
+Starting from the bottom, tokenized text is first converted into token embeddings, which are then augmented with
+> positional embeddings. This combined information forms a tensor that is passed through a series of
+> transformer blocks shown in the center(each containing multi-head attention and feed forward neural network
+> layers with dropout and layer normalization), which are stacked on top of each other and repeated 12 times.
+> The output from the final transformer block then goes through a final layer normalization step before
+> reaching the linear output layer. This layer maps the transformer's output to a high-dimensional space
+> (in this case, 50257 dimensions, corresponding to the model's vocabulary size) to predict the next token in the sequence.
