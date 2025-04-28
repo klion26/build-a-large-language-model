@@ -364,8 +364,8 @@ checksum = "325918d6fe32f23b19878fe4b34794ae41fc19ddbe53b10571a4874d44ffd39b"
 
 [[package]]
 name = "candle-core"
-version = "0.9.0-alpha.4"
-source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
+version = "0.9.0"
+source = "git+https://github.com/huggingface/candle.git#e98754fc5a2254b67b48d26380b67cf7545b6c65"
 dependencies = [
  "byteorder",
  "candle-kernels",
@@ -388,8 +388,8 @@ dependencies = [
 
 [[package]]
 name = "candle-datasets"
-version = "0.9.0-alpha.4"
-source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
+version = "0.9.0"
+source = "git+https://github.com/huggingface/candle.git#e98754fc5a2254b67b48d26380b67cf7545b6c65"
 dependencies = [
  "byteorder",
  "candle-core",
@@ -405,16 +405,16 @@ dependencies = [
 
 [[package]]
 name = "candle-kernels"
-version = "0.9.0-alpha.4"
-source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
+version = "0.9.0"
+source = "git+https://github.com/huggingface/candle.git#e98754fc5a2254b67b48d26380b67cf7545b6c65"
 dependencies = [
  "bindgen_cuda",
 ]
 
 [[package]]
 name = "candle-nn"
-version = "0.9.0-alpha.4"
-source = "git+https://github.com/huggingface/candle.git#99549813274c803b6f28de84f8d44692374d88e4"
+version = "0.9.0"
+source = "git+https://github.com/huggingface/candle.git#e98754fc5a2254b67b48d26380b67cf7545b6c65"
 dependencies = [
  "candle-core",
  "half",
@@ -545,9 +545,9 @@ checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
 name = "cudarc"
-version = "0.16.0"
+version = "0.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de8af7773407c3e19b72e7b88be9bfc578fc904e8b837ea0de95ce3696a03ad0"
+checksum = "e4ed411343abcb4dd6fd1fbc32db3533d76c2af0fd40735a9e5e39e778a81254"
 dependencies = [
  "half",
  "libloading",
