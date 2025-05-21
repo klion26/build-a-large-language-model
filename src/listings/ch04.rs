@@ -1,4 +1,5 @@
-use candle_core::{Module, Result, Tensor, TensorId, D};
+use crate::candle_addons::{seqt, SequentialT};
+use candle_core::{Module, ModuleT, Result, Tensor, TensorId, D};
 use candle_nn::{embedding, linear_b, seq, Dropout, Embedding, Linear, Sequential, VarBuilder};
 use core::f64;
 use std::ops::Mul;
@@ -311,7 +312,7 @@ pub struct GPTModel {
     toke_emb: Embedding,
     pos_emb: Embedding,
     drop_emb: Dropout,
-    trf_blocks: Sequential,
+    trf_blocks: SequentialT,
     final_norm: LayerNorm,
     out_head: Linear,
 }
@@ -321,9 +322,11 @@ impl GPTModel {
         let toke_emb = embedding(config.vocab_size, config.emb_dim, vb.pp("tok_emb"))?;
         let pos_emb = embedding(config.context_length, config.emb_dim, vb.pp("pos_emb"))?;
         let drop_emb = Dropout::new(config.drop_rate);
-        let mut trf_blocks = seq();
-        for _ in 0..config.n_layers {
-            trf_blocks = trf_blocks.add(TransformerBlock::new(config, vb.pp("transformer"))?);
+        let mut trf_blocks = seqt();
+        for ix in 0..config.n_layers {
+            // the parameter `s` for `vb.pp` need be different
+            trf_blocks =
+                trf_blocks.add(TransformerBlock::new(config, vb.pp(format!("trf.{}", ix)))?);
         }
         let final_norm = LayerNorm::new(config.emb_dim, vb.pp("final_norm"))?;
         let out_head = linear_b(config.emb_dim, config.vocab_size, false, vb.pp("out_head"))?;
@@ -336,17 +339,21 @@ impl GPTModel {
             out_head,
         })
     }
+
+    pub fn forward(&self, xs: &Tensor) -> Result<Tensor> {
+        self.forward_t(xs, true)
+    }
 }
 
-impl Module for GPTModel {
-    fn forward(&self, xs: &Tensor) -> Result<Tensor> {
+impl ModuleT for GPTModel {
+    fn forward_t(&self, xs: &Tensor, train: bool) -> Result<Tensor> {
         let (_batch_size, seq_len) = xs.dims2()?;
         let tok_embeds = self.toke_emb.forward(xs)?;
         let pos_ids = Tensor::arange(0u32, seq_len as u32, xs.device())?;
         let pos_embeds = self.pos_emb.embeddings().index_select(&pos_ids, 0)?;
         let mut x = tok_embeds.broadcast_add(&pos_embeds)?;
-        x = self.drop_emb.forward(&x, true)?;
-        x = self.trf_blocks.forward(&x)?;
+        x = self.drop_emb.forward(&x, train)?;
+        x = self.trf_blocks.forward_t(&x, train)?;
         x = self.final_norm.forward(&x)?;
 
         let logits = self.out_head.forward(&x)?;
