@@ -1,7 +1,6 @@
 use build_a_large_language_model::examples::{ch02, ch03, ch04};
 use build_a_large_language_model::exercises::ch02::{X2P1, X2P2};
-use build_a_large_language_model::exercises::ch03 as exercise_ch03;
-use build_a_large_language_model::{Example, Exercise};
+use build_a_large_language_model::{exercises, Example, Exercise};
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
@@ -12,9 +11,13 @@ static EXERCISE_REGISTRY: LazyLock<HashMap<&'static str, Box<dyn Exercise>>> =
         m.insert("2.1", Box::new(X2P1));
         m.insert("2.2", Box::new(X2P2));
         // ch03
-        m.insert("3.1", Box::new(exercise_ch03::X3P1));
-        m.insert("3.2", Box::new(exercise_ch03::X3P2));
-        m.insert("3.3", Box::new(exercise_ch03::X3P3));
+        m.insert("3.1", Box::new(exercises::ch03::X3P1));
+        m.insert("3.2", Box::new(exercises::ch03::X3P2));
+        m.insert("3.3", Box::new(exercises::ch03::X3P3));
+
+        // ch04
+        m.insert("4.1", Box::new(exercises::ch04::X4P1));
+
         m
     });
 
@@ -57,8 +60,8 @@ fn main() {
     let exercise_registry = &*EXERCISE_REGISTRY;
     let example_registry = &*EXAMPLE_REGISTRY;
 
-    // let run_type = RunType::EX(String::from("3.3"));
-    let run_type = RunType::EG(String::from("04.07"));
+    let run_type = RunType::EX(String::from("4.1"));
+    // let run_type = RunType::EG(String::from("04.07"));
     match run_type {
         RunType::EX(id) => {
             let ex = exercise_registry.get(id.as_str()).unwrap();
