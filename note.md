@@ -95,3 +95,10 @@ Starting from the bottom, tokenized text is first converted into token embedding
 > The output from the final transformer block then goes through a final layer normalization step before
 > reaching the linear output layer. This layer maps the transformer's output to a high-dimensional space
 > (in this case, 50257 dimensions, corresponding to the model's vocabulary size) to predict the next token in the sequence.
+
+
+Model size if the memory used for the total parameters(please see X4P2 for more detail).
+```
+total_params = sum(varmap.all_vars().iter().dims) // sum all of the dimensions of the parameters
+total_size_bytes = total_params * 4     /// 4 is for f32
+```
