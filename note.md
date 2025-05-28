@@ -121,3 +121,6 @@ e.g., if LLM supports only 5 tokens, and the context size is 10, then only the l
 - `probas = softmax(&logits, 1)?` probas has shape (batch, vocab_size)
 - `idx_next = probas.argmax_keepdim(D::Minus1)?` idx_next has shape (batch, 1).
 - `idx = Tensor::cat(&[&idx, &idx_next], D::Minus1)?` Appends sampled index to the running sequence, where idx has shape (batch, n_tokens+1)
+
+The six iterations of a token prediction cycle
+![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202505281002495.png))
