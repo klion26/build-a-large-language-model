@@ -102,3 +102,22 @@ Model size if the memory used for the total parameters(please see X4P2 for more 
 total_params = sum(varmap.all_vars().iter().dims) // sum all of the dimensions of the parameters
 total_size_bytes = total_params * 4     /// 4 is for f32
 ```
+
+
+The step by step process by which an LLM generates text, one token at a time.
+Starting with an initial input context("Hello, I am"), the model predicts a subsequent token
+during each iteration, appending it to the input context round of prediction. As shown, the first iteration adds "a,"
+the second "model," and the third "ready," progressively building the sentence.
+![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202505271012793.png)
+
+One iteration in GPT Model for text generation
+![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202505271022502.png)
+
+In `listing 4.8`
+- the parameter `idx` is a (batch, n_tokens) array of indices in the current context.
+- `idx.i((.., cmp::max(0usize, seq_len - context_size)..seq_len))?;` will crop current context if it exceeds the supported context size,
+e.g., if LLM supports only 5 tokens, and the context size is 10, then only the last 5 tokens are used as context
+- `logits.i((.., c - 1, ..))?` focuse only on the last time step, so that (batch, n_token, vocab_size) becomes(batch, vocab_size)
+- `probas = softmax(&logits, 1)?` probas has shape (batch, vocab_size)
+- `idx_next = probas.argmax_keepdim(D::Minus1)?` idx_next has shape (batch, 1).
+- `idx = Tensor::cat(&[&idx, &idx_next], D::Minus1)?` Appends sampled index to the running sequence, where idx has shape (batch, n_tokens+1)
