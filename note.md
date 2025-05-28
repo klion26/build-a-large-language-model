@@ -124,3 +124,6 @@ e.g., if LLM supports only 5 tokens, and the context size is 10, then only the l
 
 The six iterations of a token prediction cycle
 ![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202505281002495.png))
+
+In example 0408, it will print `Hello, I amintent hasht deepen Diffrou*/`, The reason the model is unable to produce coherent text is that we haven't
+trained it yet.
