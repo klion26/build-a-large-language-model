@@ -1,4 +1,4 @@
-use build_a_large_language_model::examples::{ch02, ch03, ch04};
+use build_a_large_language_model::examples::{ch02, ch03, ch04, ch05};
 use build_a_large_language_model::exercises::ch02::{X2P1, X2P2};
 use build_a_large_language_model::{exercises, Example, Exercise};
 use std::collections::HashMap;
@@ -50,6 +50,8 @@ static EXAMPLE_REGISTRY: LazyLock<HashMap<&'static str, Box<dyn Example>>> = Laz
     m.insert("04.07", Box::new(ch04::EG07));
     m.insert("04.08", Box::new(ch04::EG08));
 
+    // ch05
+    m.insert("05.01", Box::new(ch05::EG01));
     m
 });
 
@@ -63,8 +65,8 @@ fn main() {
     let exercise_registry = &*EXERCISE_REGISTRY;
     let example_registry = &*EXAMPLE_REGISTRY;
 
-    let run_type = RunType::EX(String::from("4.3"));
-    // let run_type = RunType::EG(String::from("04.08"));
+    // let run_type = RunType::EX(String::from("4.3"));
+    let run_type = RunType::EG(String::from("05.01"));
     match run_type {
         RunType::EX(id) => {
             let ex = exercise_registry.get(id.as_str()).unwrap();
