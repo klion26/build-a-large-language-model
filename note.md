@@ -140,3 +140,14 @@ fully connected feed forward networks that use the GELU activation function.
 - The text-generation capability of a GPT-like LLM involves decoding output tensors into human-readable text by
 sequentially predicting one token at a time based on a given input context.
 - Without training, a GPT model generates incoherent text, which underscores the importance of model training for coherent text generation.
+
+# Ch05
+
+The three main stages of coding an LLM: 1) Building an LLM; 2) Foundation model; 3) fine-tuning a foundation model.
+![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202505290848322.png)
+
+In the context of LLMs and other deep learning models, *weights* refer to the trainable parameters that the learning process adjusts.
+These weights are also known as *weight parameters* or simple *parameters*.
+
+The topics covered in chapter 5
+![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202505290857287.png)
