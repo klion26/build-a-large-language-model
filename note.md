@@ -151,3 +151,24 @@ These weights are also known as *weight parameters* or simple *parameters*.
 
 The topics covered in chapter 5
 ![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202505290857287.png)
+
+- Text evaluation: Implement the loss computation to evaluate how well the model performs
+- Training&validation losses: Apply the loss to the entire dataset, which we split into a training and validation portion
+- LLM training function: Train the model to generate human-like text
+- Text generation strategies: Implement additional LLM text generation strategies to reduce training data memorization
+- Weight saving&loading: Implement function to save and load the LLM weights to use or continue training the LLM later
+- Pretrained weights from OpenAI: Load pretrained weights from OpenAI into out LLM model.
+
+The goal of model training is to ensure that the probability values corresponding to the highlighted target token IDs are maximized.
+
+Calculating the loss involves several steps such as below
+![](https://raw.githubusercontent.com/klion26/ImageRepo/master/202506032027020.png)
+
+
+At its core, the cross entropy loss is a popular measure in machine learning and deep learning that measures the difference
+between two probability distributions.
+
+*perplexity* is a measure often used alongside cross entropy loss to evaluate the performance of models in tasks like language modeling.
+It can provide a more interpretable way to understand the uncertainty of a model in predicting the next token in a sequence.
+# Q
+- what is the different effect of different `batch size`? 
