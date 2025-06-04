@@ -1,7 +1,10 @@
 use candle_core::{Device, Result, Tensor};
+use candle_datasets::batcher::IterResult2;
+use candle_datasets::Batcher;
 use rand::{rng, seq::SliceRandom};
 use regex::{Captures, Regex};
 use std::collections::HashMap;
+use std::rc::Rc;
 use tiktoken_rs::CoreBPE;
 
 /// Listing 2.3
@@ -118,9 +121,28 @@ impl SimpleTokenizerV2 {
 }
 
 /// Listing 2.5 A dataset for batched inputs and targets
-pub struct GPTDatasetV1 {
+pub struct GPTDatasetV1_ {
     input_ids: Vec<Vec<u32>>,
     target_ids: Vec<Vec<u32>>,
+}
+
+/// GPTDatasetV1
+/// These are refcounted so cloning is chea
+#[derive(Clone)]
+pub struct GPTDatasetV1(Rc<GPTDatasetV1_>);
+
+impl AsRef<GPTDatasetV1> for GPTDatasetV1 {
+    fn as_ref(&self) -> &GPTDatasetV1 {
+        self
+    }
+}
+
+impl std::ops::Deref for GPTDatasetV1 {
+    type Target = GPTDatasetV1_;
+
+    fn deref(&self) -> &Self::Target {
+        self.0.as_ref()
+    }
 }
 
 impl GPTDatasetV1 {
@@ -140,10 +162,12 @@ impl GPTDatasetV1 {
             target_ids.push(target_chunk.to_vec());
         }
 
-        GPTDatasetV1 {
+        let dataset_ = GPTDatasetV1_ {
             input_ids,
             target_ids,
-        }
+        };
+
+        Self(Rc::new(dataset_))
     }
 
     pub fn input_ids(&self) -> &Vec<Vec<u32>> {
@@ -170,14 +194,13 @@ impl GPTDatasetV1 {
 /// Listing 2.6 A data loader to generate batches with input-target pairs
 /// We can use `GPTDatasetIter` with `candle_dataset::Batcher` to get desired
 /// batches of examples.
-pub struct GPTDatasetIter<'a> {
-    dataset: &'a GPTDatasetV1,
-    device: Device,
+pub struct GPTDatasetIter {
+    dataset: GPTDatasetV1,
     remaining_indices: Vec<usize>,
 }
 
-impl<'a> GPTDatasetIter<'a> {
-    pub fn new(dataset: &'a GPTDatasetV1, device: Device, shuffle: bool) -> Self {
+impl GPTDatasetIter {
+    pub fn new(dataset: GPTDatasetV1, shuffle: bool) -> Self {
         // use rev() so that we use Vec::pop() to keep the asc order
         let mut remaining_indices = (0..dataset.len()).rev().collect::<Vec<_>>();
         if shuffle {
@@ -186,13 +209,12 @@ impl<'a> GPTDatasetIter<'a> {
 
         Self {
             dataset,
-            device,
             remaining_indices,
         }
     }
 }
 
-impl Iterator for GPTDatasetIter<'_> {
+impl Iterator for GPTDatasetIter {
     type Item = Result<(Tensor, Tensor)>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -202,13 +224,29 @@ impl Iterator for GPTDatasetIter<'_> {
             let (input_ids, target_ids) = self.dataset.get_pair_at_index(idx);
 
             // turn into Tensors and return
-            let input_tensor = Tensor::new(&input_ids[..], &self.device);
-            let target_tensor = Tensor::new(&target_ids[..], &self.device);
+            let dev = Device::cuda_if_available(0).unwrap();
+            let input_tensor = Tensor::new(&input_ids[..], &dev);
+            let target_tensor = Tensor::new(&target_ids[..], &dev);
             Some(candle_core::error::zip(input_tensor, target_tensor))
         } else {
             None
         }
     }
+}
+
+pub fn create_dataloader_v1(
+    txt: &str,
+    batch_size: usize,
+    max_length: usize,
+    stride: usize,
+    shuffle: bool,
+    _drop_last: bool,
+) -> (GPTDatasetV1, Batcher<IterResult2<GPTDatasetIter>>) {
+    let tokenizer = tiktoken_rs::get_bpe_from_model("gpt2").unwrap();
+    let dataset = GPTDatasetV1::new(txt, tokenizer, max_length, stride);
+    let iter = GPTDatasetIter::new(dataset.clone(), shuffle);
+    let batch_iter = Batcher::new_r2(iter).batch_size(batch_size);
+    (dataset, batch_iter)
 }
 
 #[cfg(test)]
@@ -330,14 +368,11 @@ mod tests {
     }
 
     #[rstest]
-    fn test_gpt_dataset_v1_iter(
-        #[from(txt_tokenizer)] (txt, tokenizer): (String, CoreBPE),
-        #[values(Device::Cpu, Device::cuda_if_available(0).unwrap())] dev: Device,
-    ) {
+    fn test_gpt_dataset_v1_iter(#[from(txt_tokenizer)] (txt, tokenizer): (String, CoreBPE)) {
         let stride = 1_usize;
         let max_length = 3_usize;
         let dataset = GPTDatasetV1::new(&txt[..], tokenizer, max_length, stride);
-        let mut iter = GPTDatasetIter::new(&dataset, dev, false);
+        let mut iter = GPTDatasetIter::new(dataset.clone(), false);
         let mut count = 0_usize;
 
         while let Some(Ok((this_inputs, this_targets))) = iter.next() {
@@ -361,17 +396,35 @@ mod tests {
     }
 
     #[rstest]
-    fn test_gpt_dataset_with_batch(
-        #[from(gpt_dataset)] dataset: GPTDatasetV1,
-        #[values(Device::Cpu, Device::cuda_if_available(0).unwrap())] dev: Device,
-    ) {
-        let iter = GPTDatasetIter::new(&dataset, dev, false);
+    fn test_gpt_dataset_with_batch(#[from(gpt_dataset)] dataset: GPTDatasetV1) {
+        let iter = GPTDatasetIter::new(dataset.clone(), false);
         let batch_size = 2_usize;
         let mut batch_iter = Batcher::new_r2(iter).batch_size(batch_size);
 
         match batch_iter.next() {
             Some(Ok((inputs, targets))) => {
                 println!("inputs: {:?}\n\ntargets: {:?}", inputs, targets);
+                assert_eq!(inputs.dims(), targets.dims());
+                assert_eq!(inputs.dims()[0], batch_size);
+            }
+            Some(Err(err)) => panic!("{}", err),
+            None => panic!("None"),
+        }
+    }
+
+    #[rstest]
+    fn test_create_dataloader_v1() {
+        let txt = "In the heart of the city";
+        let batch_size = 2_usize;
+        let stride = 1_usize;
+        let max_length = 3_usize;
+        let shuffle = false;
+        let drop_last = false;
+        let (_dataset, mut batch_iter) =
+            create_dataloader_v1(txt, batch_size, max_length, stride, shuffle, drop_last);
+
+        match batch_iter.next() {
+            Some(Ok((inputs, targets))) => {
                 assert_eq!(inputs.dims(), targets.dims());
                 assert_eq!(inputs.dims()[0], batch_size);
             }

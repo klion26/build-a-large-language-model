@@ -1,3 +1,4 @@
+use crate::listings::ch02::create_dataloader_v1;
 use crate::Exercise;
 
 /// 2.1
@@ -31,21 +32,23 @@ impl Exercise for X2P2 {
     }
 
     fn main(&self) {
-        use crate::listings::ch02::{GPTDatasetIter, GPTDatasetV1};
-        use candle_core::Device;
-        use candle_datasets::Batcher;
         use std::fs;
-        use tiktoken_rs::get_bpe_from_model;
 
         let raw_text = fs::read_to_string("data/the-verdict.txt").expect("Unable to read the file");
-        let tokenzier = get_bpe_from_model("gpt2").unwrap();
+
         let max_length = 4_usize;
         let stride = 2_usize;
-        let dataset = GPTDatasetV1::new(&raw_text[..], tokenzier, max_length, stride);
-        let device = Device::Cpu;
-        let iter = GPTDatasetIter::new(&dataset, device, false);
+        let shuffle = false;
+        let drop_last = false;
         let batch_size = 2_usize;
-        let mut batch_iter = Batcher::new_r2(iter).batch_size(batch_size);
+        let (_dataset, mut batch_iter) = create_dataloader_v1(
+            &raw_text[..],
+            batch_size,
+            max_length,
+            stride,
+            shuffle,
+            drop_last,
+        );
 
         match batch_iter.next() {
             Some(Ok((inputs, targets))) => {
