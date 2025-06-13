@@ -311,7 +311,7 @@ dependencies = [
  "candle-datasets",
  "candle-nn",
  "phf",
- "rand 0.9.0",
+ "rand 0.9.1",
  "regex",
  "rstest",
  "tiktoken-rs",
@@ -375,7 +375,7 @@ dependencies = [
  "memmap2",
  "num-traits",
  "num_cpus",
- "rand 0.9.0",
+ "rand 0.9.1",
  "rand_distr",
  "rayon",
  "safetensors",
@@ -398,7 +398,7 @@ dependencies = [
  "image",
  "memmap2",
  "parquet",
- "rand 0.9.0",
+ "rand 0.9.1",
  "thiserror 1.0.69",
  "tokenizers",
 ]
@@ -1211,7 +1211,7 @@ dependencies = [
  "cfg-if",
  "crunchy",
  "num-traits",
- "rand 0.9.0",
+ "rand 0.9.1",
  "rand_distr",
 ]
 
@@ -2314,13 +2314,12 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3779b94aeb87e8bd4e834cee3650289ee9e0d5677f976ecdb6d219e5f4f6cd94"
+checksum = "9fbfd9d094a40bf3ae768db9361049ace4c0e04a4fd6b359518bd7b73a73dd97"
 dependencies = [
  "rand_chacha 0.9.0",
  "rand_core 0.9.0",
- "zerocopy 0.8.17",
 ]
 
 [[package]]
@@ -2369,7 +2368,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a8615d50dcf34fa31f7ab52692afec947c4dd0ab803cc87cb3b0b4570ff7463"
 dependencies = [
  "num-traits",
- "rand 0.9.0",
+ "rand 0.9.1",
 ]
 
 [[package]]
